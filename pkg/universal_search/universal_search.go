@@ -4,8 +4,8 @@ import (
 	"brainfuck_go/pkg/brainfuck"
 	"brainfuck_go/pkg/input_output"
 	"fmt"
-	"github.com/gosuri/uilive"
 	"math/big"
+	"time"
 )
 
 func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) ([]uint8, []uint8) {
@@ -20,9 +20,9 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) ([]
 
 	space := make(map[string]*task)
 	counter := 0
-	writer := uilive.New()
-	writer.Start()
-	defer writer.Stop()
+
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
 
 	for {
 		// new task
@@ -39,7 +39,13 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) ([]
 				counter++ // add one more task
 			}
 		}
-		_, _ = fmt.Fprintf(writer, "number of running tasks: %d code size %d\n", counter, len(code))
+		select {
+		case <-ticker.C: // print every tick
+			_, _ = fmt.Printf("number of running tasks: %d code size %d\n", counter, len(code))
+		default:
+			break
+		}
+
 		// run all tasks
 		toRemoveList := make([]string, 0)
 		for k, t := range space {

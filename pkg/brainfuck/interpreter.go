@@ -45,13 +45,15 @@ var ztoc = map[int]uint8{
 	5: ',',
 	6: '[',
 	7: ']',
-	// 8:  'a', // simpler version of brainfuck
-	// 9: 's',
-	// 10: 'm',
-	// 11: 'd',
-	// 12: 'r',
-	// 13: 'z',
-	// 14: 'w',
+	/*
+		8:  'a', // extended version of brainfuck
+		9:  's',
+		10: 'm',
+		11: 'd',
+		12: 'r',
+		13: 'z',
+		14: 'w',
+	*/
 }
 
 func GetCodeFromInt(z *big.Int) []uint8 {
