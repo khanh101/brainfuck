@@ -10,8 +10,9 @@ vec<char> from_string(const char* s) {
 
 int main() {
     vec<char> truth = from_string("2x2");
-
-    auto [i, o] = universal_search(from_string("4"), [&](const vec<char>& out) -> bool {
+     
+    std::printf("started\n");
+    auto [i, o] = universal_search(from_string("4"), [=](const vec<char>& out) -> bool {
         if (out.size() != truth.size()) {
             return false;
         }

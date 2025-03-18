@@ -60,8 +60,9 @@ tup<Z, vec<char>> universal_search(const vec<char>& input_string, const func<boo
 
     while (true) {
         // make new program
-        interpreter* ip = new interpreter(30000, get_code_from_z(i), new char_input_string(input_string), new char_output_string());
+        interpreter* ip = new interpreter(300, get_code_from_z(i), new char_input_string(input_string), new char_output_string());
         space.push_back({i, ip});
+        std::printf("running %zu programs ...\n", space.size());
         // exec
         for (uint64 k=0; k < space.size(); k++) {
             auto [j, jp] = space[k];

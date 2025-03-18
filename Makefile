@@ -1,6 +1,6 @@
 .PHONY: interpreter
 
-COMMON_FLAGS = -O4 -std=c++23 -march=native -fno-math-errno -I inc -I /Users/khanh/miniforge3/envs/brainfuck/include -L /Users/khanh/miniforge3/envs/brainfuck/lib
+COMMON_FLAGS = -g -O0 -std=c++23 -march=native -fno-math-errno -I inc -I /Users/khanh/miniforge3/envs/brainfuck/include -L /Users/khanh/miniforge3/envs/brainfuck/lib
 
 interpreter:
 	clang++ $(COMMON_FLAGS) -o interpreter.out interpreter.cpp
