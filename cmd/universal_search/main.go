@@ -29,6 +29,5 @@ func main() {
 	}
 
 	output, code := universal_search.UniversalSearch(64, input, test)
-	fmt.Println(string(code))
-	fmt.Println(string(output))
+	fmt.Printf("factor: %s code %s\n", string(output), string(code))
 }
