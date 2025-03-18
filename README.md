@@ -8,4 +8,4 @@
 
 - `hello.bf`: just hello word
 
-- `add.bf`: single digit adding `23 -> 5`
+- `add.bf`: single digit adding `23 -> (2 + 3) -> 5`
