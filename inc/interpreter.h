@@ -34,6 +34,10 @@ vec<token> parse_code(const vec<char>& source_code) {
         }
         // else ignore comments.
     }
+    for (uint64 i=0; i<token_list.size(); i++) {
+        std::printf("(%c: %d)", token_list[i].operation, token_list[i].count);
+    }
+    std::printf("\n");
     return token_list;
 }
 
@@ -90,9 +94,9 @@ struct interpreter {
 
     void print_data() {
         for (uint64 i=0; i<data.size(); i++) {
-            std::printf("%c", data[i]);
+            std::printf("|%d", data[i]);
         }
-        std::printf("\n");
+        std::printf("|\n");
     }
 
     bool step() {
@@ -108,10 +112,10 @@ struct interpreter {
                 data_ptr = (data_ptr + data.size() - t.count) % data.size();
                 break;
             case '+':
-                data[data_ptr] += t.count;
+                data[data_ptr] = data[data_ptr] + t.count;
                 break;
             case '-':
-                data[data_ptr] -= t.count;
+                data[data_ptr] = data[data_ptr] - t.count;
                 break;
             case '.':
                 output->put(data[data_ptr]);

@@ -3,7 +3,7 @@
 <               
 -48  Subtract 48 from cell 0 (convert from ASCII)
 >               
-+48  Subtract 48 from cell 1 (convert from ASCII)
+-48  Subtract 48 from cell 1 (convert from ASCII)
 <               
 [->+<]         Move cell 0’s value into cell 1 (cell 1 now holds the sum)
 >               

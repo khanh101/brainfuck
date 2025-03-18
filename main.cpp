@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 
     interpreter i(data_length, code);
     while (i.step()) {
-        // i.print_data();
+        i.print_data();
     }
     return 0;
 }
