@@ -1,5 +1,5 @@
-#ifndef __IO__
-#define __IO__
+#ifndef __INPUT_OUTPUT__
+#define __INPUT_OUTPUT__
 
 #include "type.h"
 #include <cstdio>
@@ -44,4 +44,4 @@ struct char_input_string : char_input {
     }
 };
 
-#endif // __IO__
+#endif // __INPUT_OUTPUT__

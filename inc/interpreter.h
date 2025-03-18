@@ -1,7 +1,7 @@
 #ifndef __INTERPRETER__
 #define __INTERPRETER__
 #include "type.h"
-#include "io.h"
+#include "input_output.h"
 
 struct interpreter {
     uint64 data_ptr;
