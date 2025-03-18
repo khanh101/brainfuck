@@ -29,6 +29,25 @@ struct char_output_stdout : char_output {
     }
 };
 
+struct char_input_string : char_input {
+    uint64 ptr;
+    const char* string;
+    uint64 length;
+    char boundary;
+    char_input_string(const char* string, char boundary = '\0'): 
+        ptr(0),
+        string(string),
+        length(std::strlen(string)),
+        boundary(boundary)
+    {}
+    char get() override {
+        if (ptr >= length) {
+            return boundary;
+        }
+        return string[ptr++];
+    }
+};
+
 struct interpreter {
     uint64 data_ptr;
     uint64 code_ptr;
