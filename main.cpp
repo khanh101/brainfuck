@@ -9,14 +9,15 @@ using vec = std::vector<T>;
 template<typename KT, typename VT>
 using dict = std::unordered_map<KT, VT>;
 
+// abstract class for input and output
 struct char_input {
     virtual char get() = 0;
 };
-
 struct char_output {
     virtual void put(char c) = 0;
 };
 
+// concrete classes for input and output implementing stdin and stdout
 struct char_input_stdin : char_input {
     char get() override {
         return std::getchar();
@@ -29,6 +30,7 @@ struct char_output_stdout : char_output {
     }
 };
 
+// concrete class for input implementing a string
 struct char_input_string : char_input {
     uint64 ptr;
     const char* string;
@@ -144,11 +146,26 @@ struct interpreter {
 };
 
 
-int main() {
-    interpreter i(
-        50,
-        "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
-    ); // hello world
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::printf("Usage: %s <data_length> <code_filename>\n", argv[0]);
+        return 1;
+    }
+
+    uint64 data_length = std::stoull(argv[1]);
+    FILE* code_file = std::fopen(argv[2], "r");
+    if (code_file == nullptr) {
+        std::printf("Error: cannot open file %s\n", argv[2]);
+        return 1;
+    }
+    std::fseek(code_file, 0, SEEK_END);
+    uint64 code_length = std::ftell(code_file);
+    std::rewind(code_file);
+    char* code = new char[code_length];
+    std::fread(code, 1, code_length, code_file);
+    std::fclose(code_file);
+
+    interpreter i(data_length, code);
     while (i.step()) {
         // i.print_data();
     }
