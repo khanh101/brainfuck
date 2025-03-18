@@ -20,9 +20,9 @@ struct interpreter {
     uint64 code_length;
     dict<uint64, uint64> jump_table;
     void load_code(const char* code) {
-        code = code;
-        code_length = std::strlen(code);
-        jump_table = dict<uint64, uint64>();
+        this->code = code;
+        this->code_length = std::strlen(code);
+        this->jump_table = dict<uint64, uint64>();
         vec<uint64> bracket_index_stack;
         for (uint64 i=0; i<code_length; i++) {
             switch (code[i]) {
@@ -61,10 +61,10 @@ struct interpreter {
         }
         switch (code[code_ptr]) {
             case '>':
-                data_ptr++;
+                data_ptr = (data_ptr + 1) % data_length;
                 break;
             case '<':
-                data_ptr--;
+                data_ptr = (data_ptr - 1 + data_length) % data_length;
                 break;
             case '+':
                 data[data_ptr]++;
@@ -99,7 +99,7 @@ int main() {
     interpreter i(50);
     i.load_code("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."); // hello world
     while (i.step()) {
-        i.print_data();
+        // i.print_data();
     }
     return 0;
 }
