@@ -101,6 +101,10 @@ struct interpreter {
         this->code = parse_code(source_code);
         this->jump_table = calc_jump_table(this->code);
     }
+    ~interpreter() {
+        delete input;
+        delete output;
+    }
 
     void print_code() {
         std::printf("code: ");
@@ -186,8 +190,7 @@ struct interpreter {
             case 'w':
                 std::swap(data[data_ptr], data[data_ptr+1]);
                 break;
-            case 'i':
-                code_ptr = code_ptr + data[data_ptr];
+            case '_': // noop
                 break;
         }
         code_ptr++;

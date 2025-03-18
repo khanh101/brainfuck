@@ -18,7 +18,7 @@ vec<char> read_code_from_file(const char* filename) {
     return code;
 }
 
-std::tuple<uint64, vec<char>> read_args(int argc, char** argv) {
+tup<uint64, vec<char>> read_args(int argc, char** argv) {
     if (argc < 2) {
         std::printf("Usage: %s <data_length> <code_filename>\n", argv[0]);
         return {0, vec<char>()};

@@ -27,17 +27,15 @@ struct char_output_stdout : char_output {
 // concrete class for input implementing a string
 struct char_input_string : char_input {
     uint64 ptr;
-    const char* string;
-    uint64 length;
+    const vec<char>& string;
     char boundary;
-    char_input_string(const char* string, char boundary = '\0'): 
+    char_input_string(const vec<char>& string, char boundary = '\0'): 
         ptr(0),
         string(string),
-        length(std::strlen(string)),
         boundary(boundary)
     {}
     char get() override {
-        if (ptr >= length) {
+        if (ptr >= string.size()) {
             return boundary;
         }
         return string[ptr++];
@@ -48,12 +46,6 @@ struct char_output_string: char_output {
     vec<char> buffer;
     void put(char c) override {
         buffer.push_back(c);
-    }
-    char* to_string() {
-        char* s = new char[buffer.size() + 1];
-        std::memcpy(s, buffer.data(), buffer.size());
-        s[buffer.size()] = '\0';
-        return s;
     }
 };
 
