@@ -1,7 +1,6 @@
 package main
 
 import (
-	"brainfuck_go/pkg/brainfuck"
 	"brainfuck_go/pkg/universal_search"
 	"fmt"
 )
@@ -12,7 +11,7 @@ func main() {
 		return "2" == string(s)
 	}
 
-	z, output := universal_search.UniversalSearch(64, input, test)
-	fmt.Println(string(brainfuck.GetCodeFromInt(z)))
+	output, code := universal_search.UniversalSearch(64, input, test)
+	fmt.Println(string(code))
 	fmt.Println(string(output))
 }

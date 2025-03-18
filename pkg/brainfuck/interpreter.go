@@ -81,6 +81,10 @@ func EasyReducibleCode(source []uint8) bool {
 	if len(source) < 2 {
 		return true
 	}
+	// every useful prog ends with printout
+	if source[len(source)-1] != '.' {
+		return true
+	}
 	// reducible pair
 	for i := 0; i < len(source)-1; i++ {
 		cc := string(source[i : i+1])
@@ -88,10 +92,21 @@ func EasyReducibleCode(source []uint8) bool {
 			return true
 		}
 	}
-	// every useful prog ends with printout
-	if source[len(source)-1] != '.' {
-		return true
+	// [] can be parsed
+	stack := 0
+	for i := 0; i < len(source); i++ {
+		c := source[i]
+		switch c {
+		case ']':
+			stack--
+			if stack < 0 {
+				return true
+			}
+		case '[':
+			stack++
+		}
 	}
+
 	return false
 }
 
