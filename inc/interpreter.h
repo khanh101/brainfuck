@@ -3,6 +3,59 @@
 #include "type.h"
 #include "input_output.h"
 
+struct token {
+    char operation;  // the operation character ('+', '-', etc.)
+    int count;      // how many times to perform it (written in base 10) (default 1)
+};
+
+vec<token> parse_code(const vec<char>& source_code) {
+    set<char> allowed_char_set = {'[', ']', '<', '>', '+', '-', '.', ','};
+    set<char> multi_allowed_char_set = {'<', '>', '+', '-', '.', ','};
+    vec<token> token_list;
+    for (uint64 i = 0; i < source_code.size(); ++i) {
+        char c = source_code[i];
+        if (multi_allowed_char_set.count(c)) {
+            int count = 0;
+            // Look ahead for digits.
+            uint64 j = i + 1;
+            while (j < source_code.size() && std::isdigit(source_code[j])) {
+                count = count * 10 + (source_code[j] - '0');
+                ++j;
+            }
+            if (count == 0) { // If no digit is found, count remains 0. Use default 1.
+                count = 1;
+            }
+            token_list.push_back(token{c, count});
+            i = j - 1;  // Skip processed digits.
+        }
+        else if (allowed_char_set.count(c)) {
+            // For the other commands, count is just 1.
+            token_list.push_back(token{ c, 1 });
+        }
+        // else ignore comments.
+    }
+    return token_list;
+}
+
+dict<uint64, uint64> calc_jump_table(const vec<token>& code) {
+    dict<uint64, uint64> jump_table;
+    vec<uint64> bracket_index_stack;
+    for (uint64 i=0; i<code.size(); i++) {
+        switch (code[i].operation) {
+            case '[':
+                bracket_index_stack.push_back(i);
+                break;
+            case ']':
+                uint64 j = bracket_index_stack.back();
+                bracket_index_stack.pop_back();
+                jump_table[i] = j;
+                jump_table[j] = i;
+                break;
+        }
+    }
+    return jump_table;
+}
+
 struct interpreter {
     uint64 data_ptr;
     uint64 code_ptr;
@@ -11,7 +64,7 @@ struct interpreter {
     char_input* input;
     char_output* output;
 
-    vec<char> code;
+    vec<token> code;
     dict<uint64, uint64> jump_table;
     interpreter(uint64 data_length, const vec<char>& source_code, char_input* input = new char_input_stdin(), char_output* output = new char_output_stdout()):
         data_ptr(0),
@@ -22,28 +75,8 @@ struct interpreter {
         output(output),
         jump_table()
     {
-        // shorten code
-        set<char> allowed_char_set = {'[', ']', '<', '>', '+', '-', '.', ','};
-        for (uint64 i = 0; i < source_code.size(); i++) {
-            if (allowed_char_set.find(source_code[i]) != allowed_char_set.end()) {
-                code.push_back(source_code[i]);
-            }
-        }
-        // calculate jump table
-        vec<uint64> bracket_index_stack;
-        for (uint64 i=0; i<code.size(); i++) {
-            switch (code[i]) {
-                case '[':
-                    bracket_index_stack.push_back(i);
-                    break;
-                case ']':
-                    uint64 j = bracket_index_stack.back();
-                    bracket_index_stack.pop_back();
-                    jump_table[i] = j;
-                    jump_table[j] = i;
-                    break;
-            }
-        }
+        this->code = parse_code(source_code);
+        this->jump_table = calc_jump_table(this->code);
     }
 
     void print_jump_table() {
@@ -66,18 +99,19 @@ struct interpreter {
         if (code_ptr >= code.size()) {
             return false; // halt
         }
-        switch (code[code_ptr]) {
+        token t = code[code_ptr];
+        switch (t.operation) {
             case '>':
-                data_ptr = (data_ptr + 1) % data.size();
+                data_ptr = (data_ptr + t.count) % data.size();
                 break;
             case '<':
-                data_ptr = (data_ptr + data.size() - 1) % data.size();
+                data_ptr = (data_ptr + data.size() - t.count) % data.size();
                 break;
             case '+':
-                data[data_ptr]++;
+                data[data_ptr] += t.count;
                 break;
             case '-':
-                data[data_ptr]--;
+                data[data_ptr] -= t.count;
                 break;
             case '.':
                 output->put(data[data_ptr]);
