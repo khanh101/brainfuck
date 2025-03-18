@@ -86,7 +86,7 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) (*b
 					}
 				*/
 				// quadratic version - do fixed number of steps
-				numSteps := 1000
+				numSteps := 4096 //
 				for i := 0; i < numSteps; i++ {
 
 					halt, err := t.i.Step()
