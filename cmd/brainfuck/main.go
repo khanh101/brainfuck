@@ -53,7 +53,11 @@ func main() {
 		panic(err)
 	}
 	for {
-		if i.Step() {
+		halt, err := i.Step()
+		if err != nil {
+			panic(err)
+		}
+		if halt {
 			break
 		}
 	}
