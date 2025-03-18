@@ -14,7 +14,7 @@ struct interpreter {
     uint64 code_ptr;
     vec<char> data;
     uint64 data_length;
-    interpreter(uint64 data_length): data_ptr(0), code_ptr(0), data(data_length, 0) {}
+    interpreter(uint64 data_length): data_ptr(0), code_ptr(0), data(data_length, 0), data_length(data_length) {}
 
     const char* code;
     uint64 code_length;
