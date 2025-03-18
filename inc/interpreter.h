@@ -10,7 +10,7 @@ struct token {
 
 vec<token> parse_code(const vec<char>& source_code) {
     set<char> command_set = {
-        '[', ']', '<', '>', '+', '-', '.', ',', 'a', 's', 'm', 'd', 'r', 'z', 'w', 'i'
+        '[', ']', '<', '>', '+', '-', '.', ',', 'a', 's', 'm', 'd', 'r', 'z', 'w', '_'
     };
     set<char> multi_command_set = {'<', '>', '+', '-', '.', ','};
     vec<token> token_list;
