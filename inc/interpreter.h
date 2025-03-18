@@ -9,17 +9,28 @@ struct token {
 };
 
 vec<token> parse_code(const vec<char>& source_code) {
-    set<char> allowed_char_set = {'[', ']', '<', '>', '+', '-', '.', ','};
-    set<char> multi_allowed_char_set = {'<', '>', '+', '-', '.', ','};
+    set<char> command_set = {'[', ']', '<', '>', '+', '-', '.', ','};
+    set<char> multi_command_set = {'<', '>', '+', '-', '.', ','};
     vec<token> token_list;
     for (uint64 i = 0; i < source_code.size(); ++i) {
         char c = source_code[i];
-        if (allowed_char_set.count(c) == 0) {
-            continue; // ignore comment
+        if (c == '#') { // skip comment
+            uint64 j = i+1;
+            while (j < source_code.size()) {
+                if (source_code[j] == '\n') {
+                    break;
+                }
+                ++j;
+            }
+            i = j;
         }
+        if (command_set.count(c) == 0) {
+            continue; // ignore other characters 
+        }
+
         token t;
 
-        if (multi_allowed_char_set.count(c)) {
+        if (multi_command_set.count(c)) {
             int count = 0;
             // Look ahead for digits.
             uint64 j = i + 1;
@@ -33,7 +44,7 @@ vec<token> parse_code(const vec<char>& source_code) {
             t = token{c, count};
             i = j - 1;  // Skip processed digits.
         }
-        else if (allowed_char_set.count(c)) {
+        else if (command_set.count(c)) {
             // For the other commands, count is just 1.
             t = token{c, 1};
         }

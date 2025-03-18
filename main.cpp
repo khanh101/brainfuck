@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     i.print_code();
 
     while (i.step()) {
-        i.print_data();
+        // i.print_data();
     }
     return 0;
 }
