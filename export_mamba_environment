@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+UNAME=$(uname -s | tr '[:upper:]' '[:lower:]')      # OS name
+UNAME_R=$(uname -r)                                 # Kernel version
+UNAME_M=$(uname -m)                                 # Machine hardware name
+
+mamba env export | grep -v "^prefix: " > "environment_${UNAME}_${UNAME_R}_${UNAME_M}.yml"
