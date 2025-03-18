@@ -10,7 +10,7 @@
 
 - new commands: `w` swap the current cell and the next cell
 
-- new commands: `j` jump ahead `n` steps where `n` the the value of current cell
+- new commands: `_` noop
 
 ## PROGRAM 
 
