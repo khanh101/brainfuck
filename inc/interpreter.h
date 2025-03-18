@@ -14,25 +14,35 @@ vec<token> parse_code(const vec<char>& source_code) {
     vec<token> token_list;
     for (uint64 i = 0; i < source_code.size(); ++i) {
         char c = source_code[i];
+        if (allowed_char_set.count(c) == 0) {
+            continue; // ignore comment
+        }
+        token t;
+
         if (multi_allowed_char_set.count(c)) {
             int count = 0;
             // Look ahead for digits.
             uint64 j = i + 1;
-            while (j < source_code.size() && std::isdigit(source_code[j])) {
+            while (j < source_code.size() and std::isdigit(source_code[j])) {
                 count = count * 10 + (source_code[j] - '0');
                 ++j;
             }
             if (count == 0) { // If no digit is found, count remains 0. Use default 1.
                 count = 1;
             }
-            token_list.push_back(token{c, count});
+            t = token{c, count};
             i = j - 1;  // Skip processed digits.
         }
         else if (allowed_char_set.count(c)) {
             // For the other commands, count is just 1.
-            token_list.push_back(token{ c, 1 });
+            t = token{c, 1};
         }
-        // else ignore comments.
+
+        if (token_list.size() > 0 and token_list[token_list.size()-1].operation == t.operation) {
+            token_list[token_list.size()-1].count += t.count; // update prev token
+        } else {
+            token_list.push_back(t);
+        }
     }
     return token_list;
 }
@@ -80,6 +90,7 @@ struct interpreter {
     }
 
     void print_code() {
+        std::printf("code: ");
         for (uint64 i=0; i<code.size(); i++) {
             std::printf("(%c: %d)", code[i].operation, code[i].count);
         }
