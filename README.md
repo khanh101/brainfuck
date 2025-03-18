@@ -4,6 +4,14 @@
 
 - if a number in decimal `n` follows `<>+-`, the operation will be repeat `n` times. for example, `+48` means add `48` into the current cell
 
+- new commands: `asmdr` add/subtract/multiply/divide/remainder current cell and next cell then put the output to the current cell
+
+- new commands: `z` set the current cell to zero
+
+- new commands: `w` swap the current cell and the next cell
+
+- new commands: `j` jump ahead `n` steps where `n` the the value of current cell
+
 ## PROGRAM 
 
 - `hello.bf`: just hello word

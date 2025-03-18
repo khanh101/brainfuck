@@ -9,7 +9,9 @@ struct token {
 };
 
 vec<token> parse_code(const vec<char>& source_code) {
-    set<char> command_set = {'[', ']', '<', '>', '+', '-', '.', ','};
+    set<char> command_set = {
+        '[', ']', '<', '>', '+', '-', '.', ',', 'a', 's', 'm', 'd', 'r', 'z', 'w', 'j'
+    };
     set<char> multi_command_set = {'<', '>', '+', '-', '.', ','};
     vec<token> token_list;
     for (uint64 i = 0; i < source_code.size(); ++i) {
@@ -162,6 +164,30 @@ struct interpreter {
                 if (data[data_ptr] != 0) {
                     code_ptr = jump_table[code_ptr];
                 }
+                break;
+            case 'a':
+                data[data_ptr] = data[data_ptr] + data[data_ptr+1];
+                break;
+            case 's':
+                data[data_ptr] = data[data_ptr] - data[data_ptr+1];
+                break;
+            case 'm':
+                data[data_ptr] = data[data_ptr] * data[data_ptr+1];
+                break;
+            case 'd':
+                data[data_ptr] = data[data_ptr] / data[data_ptr+1];
+                break;
+            case 'r':
+                data[data_ptr] = data[data_ptr] % data[data_ptr+1];
+                break;
+            case 'z':
+                data[data_ptr] = 0;
+                break;
+            case 'w':
+                std::swap(data[data_ptr], data[data_ptr+1]);
+                break;
+            case 'j':
+                code_ptr = code_ptr + data[data_ptr];
                 break;
         }
         code_ptr++;
