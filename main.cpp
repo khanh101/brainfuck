@@ -54,28 +54,23 @@ struct interpreter {
     uint64 data_ptr;
     uint64 code_ptr;
     vec<char> data;
-    uint64 data_length;
-    
-    const char* code;
-    uint64 code_length;
+    const vec<char>& code;
 
     char_input* input;
     char_output* output;
 
     dict<uint64, uint64> jump_table;
-    interpreter(uint64 data_length, const char* code, char_input* input = new char_input_stdin(), char_output* output = new char_output_stdout()):
+    interpreter(uint64 data_length, const vec<char>& code, char_input* input = new char_input_stdin(), char_output* output = new char_output_stdout()):
         data_ptr(0),
         code_ptr(0),
         data(data_length, 0),
-        data_length(data_length),
         code(code),
-        code_length(std::strlen(code)),
         input(input),
         output(output),
         jump_table()
     {
         vec<uint64> bracket_index_stack;
-        for (uint64 i=0; i<code_length; i++) {
+        for (uint64 i=0; i<code.size(); i++) {
             switch (code[i]) {
                 case '[':
                     bracket_index_stack.push_back(i);
@@ -100,22 +95,22 @@ struct interpreter {
     }
 
     void print_data() {
-        for (uint64 i=0; i<data_length; i++) {
+        for (uint64 i=0; i<data.size(); i++) {
             std::printf("%c", data[i]);
         }
         std::printf("\n");
     }
 
     bool step() {
-        if (code_ptr >= code_length) {
+        if (code_ptr >= code.size()) {
             return false; // halt
         }
         switch (code[code_ptr]) {
             case '>':
-                data_ptr = (data_ptr + 1) % data_length;
+                data_ptr = (data_ptr + 1) % data.size();
                 break;
             case '<':
-                data_ptr = (data_ptr - 1 + data_length) % data_length;
+                data_ptr = (data_ptr + data.size() - 1) % data.size();
                 break;
             case '+':
                 data[data_ptr]++;
@@ -145,17 +140,17 @@ struct interpreter {
     }
 };
 
-char* read_file(const char* filename) {
+vec<char> read_file(const char* filename) {
     FILE* code_file = std::fopen(filename, "r");
     if (code_file == nullptr) {
         std::printf("Error: cannot open file %s\n", filename);
-        return nullptr;
+        return vec<char>();
     }
     std::fseek(code_file, 0, SEEK_END);
     uint64 code_length = std::ftell(code_file);
     std::rewind(code_file);
-    char* code = new char[code_length];
-    std::fread(code, 1, code_length, code_file);
+    vec<char> code(code_length);
+    std::fread(code.data(), 1, code_length, code_file);
     std::fclose(code_file);
     return code;
 }
@@ -168,6 +163,8 @@ int main(int argc, char** argv) {
 
     uint64 data_length = std::stoull(argv[1]);
     char* code = read_file(argv[2]);
+
+
 
     interpreter i(data_length, code);
     while (i.step()) {
