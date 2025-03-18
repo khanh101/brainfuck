@@ -92,7 +92,12 @@ struct interpreter {
     void print_code() {
         std::printf("code: ");
         for (uint64 i=0; i<code.size(); i++) {
-            std::printf("(%c: %d)", code[i].operation, code[i].count);
+            token t = code[i];
+            if (t.count == 1) {
+                std::printf("%c", t.operation);
+            } else {
+                std::printf("%c%d", t.operation, t.count);
+            }
         }
         std::printf("\n");
     }
