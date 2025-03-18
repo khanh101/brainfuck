@@ -36,26 +36,26 @@ var commandSet = map[uint8]bool{
 	'_': true,
 }
 
+var ztoc = map[int]uint8{
+	0: '<', // no useful program ends with '<' so that's ok to use 0
+	1: '>',
+	2: '+',
+	3: '-',
+	4: '.',
+	5: ',',
+	6: '[',
+	7: ']',
+	// 8:  'a', // simpler version of brainfuck
+	// 9: 's',
+	// 10: 'm',
+	// 11: 'd',
+	// 12: 'r',
+	// 13: 'z',
+	// 14: 'w',
+}
+
 func GetCodeFromInt(z *big.Int) []uint8 {
 	z = (&big.Int{}).Set(z) // copy
-	ztoc := map[int]uint8{
-		0:  '_',
-		1:  '<',
-		2:  '>',
-		3:  '+',
-		4:  '-',
-		5:  '.',
-		6:  ',',
-		7:  '[',
-		8:  ']',
-		9:  'a',
-		10: 's',
-		11: 'm',
-		12: 'd',
-		13: 'r',
-		14: 'z',
-		15: 'w',
-	}
 	code := make([]uint8, 0)
 	zero := big.NewInt(0)
 	mod := &big.Int{}
@@ -66,6 +66,33 @@ func GetCodeFromInt(z *big.Int) []uint8 {
 		z = z.Div(z, lenZtoC)
 	}
 	return code
+}
+
+var reduciblePair = map[string]bool{
+	"<>": true,
+	"><": true,
+	"+-": true,
+	"-+": true,
+	"[]": true,
+}
+
+// EasyReducibleCode : simple test if there is a shorter equivalent code
+func EasyReducibleCode(source []uint8) bool {
+	if len(source) < 2 {
+		return true
+	}
+	// reducible pair
+	for i := 0; i < len(source)-1; i++ {
+		cc := string(source[i : i+1])
+		if reduciblePair[cc] {
+			return true
+		}
+	}
+	// every useful prog ends with printout
+	if source[len(source)-1] != '.' {
+		return true
+	}
+	return false
 }
 
 func parseCode(source []uint8) (tokens []token) {

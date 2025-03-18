@@ -9,12 +9,8 @@ import (
 	"sync"
 )
 
-func getHex(z *big.Int) string {
-	return fmt.Sprintf("%x", z)
-}
-
-func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []uint8 {
-	zero := big.NewInt(0)
+func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) (*big.Int, []uint8) {
+	// zero := big.NewInt(0)
 	one := big.NewInt(1)
 	// two := big.NewInt(2)
 	z := big.NewInt(0)
@@ -36,15 +32,17 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 	for {
 		// new task
 		code := brainfuck.GetCodeFromInt(z)
-		i, err := brainfuck.NewInterpreter(dataLength, code, input_output.NewStringInput(input), input_output.NewStringOutput())
-		if err == nil {
-			t := &task{
-				z: (&big.Int{}).Set(z), // copy
-				i: i,
+		if !brainfuck.EasyReducibleCode(code) {
+			i, err := brainfuck.NewInterpreter(dataLength, code, input_output.NewStringInput(input), input_output.NewStringOutput())
+			if err == nil {
+				t := &task{
+					z: (&big.Int{}).Set(z), // copy
+					i: i,
+				}
+				k := t.z.Text(16)
+				space.Store(k, t)
+				counter++ // add one more task
 			}
-			k := getHex(t.z)
-			space.Store(k, t)
-			counter++ // add one more task
 		}
 		_, _ = fmt.Fprintf(writer, "number of running tasks: %d code size %d\n", counter, len(code))
 		// run all tasks
@@ -59,16 +57,38 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 			wg.Add(1)
 			go func(t *task) {
 				defer wg.Done()
-				/* linear version
-				numSteps := (&big.Int{}).Exp(
-					two,
-					(&big.Int{}).Sub(z, t.z),
-					nil,
-				) // number of steps is 2^{z - t.z}
+				//  linear version
+				/*
+					numSteps := (&big.Int{}).Exp(
+						two,
+						(&big.Int{}).Sub(z, t.z),
+						nil,
+					) // number of steps is 2^{z - t.z}
+					for numSteps.Cmp(zero) > 0 {
+						halt, err := t.i.Step()
+						if halt || err != nil { // halt
+							o := &output{
+								k: k,
+								v: nil,
+							}
+							if err == nil {
+								v := t.i.Output().(input_output.StringOutput).String()
+								if test(v) {
+									o.v = v
+								}
+							}
+							outputListMtx.Lock()
+							outputList = append(outputList, o)
+							outputListMtx.Unlock()
+							break
+						}
+						numSteps = numSteps.Sub(numSteps, one)
+					}
 				*/
-				// quadratic version
-				numSteps := (&big.Int{}).Sub(z, t.z)
-				for numSteps.Cmp(zero) > 0 {
+				// quadratic version - do fixed number of steps
+				numSteps := 1000
+				for i := 0; i < numSteps; i++ {
+
 					halt, err := t.i.Step()
 					if halt || err != nil { // halt
 						o := &output{
@@ -86,7 +106,6 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 						outputListMtx.Unlock()
 						break
 					}
-					numSteps = numSteps.Sub(numSteps, one)
 				}
 			}(t)
 			return true // continue iteration
@@ -96,7 +115,8 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 		for _, o := range outputList {
 			space.Delete(o.k) // remove task
 			if o.v != nil {
-				return o.v
+				z, _ = (&big.Int{}).SetString(o.k, 16)
+				return z, o.v
 			}
 		}
 		counter -= len(outputList) // reduce counter
