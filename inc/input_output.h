@@ -44,4 +44,17 @@ struct char_input_string : char_input {
     }
 };
 
+struct char_output_string: char_output {
+    vec<char> buffer;
+    void put(char c) override {
+        buffer.push_back(c);
+    }
+    char* to_string() {
+        char* s = new char[buffer.size() + 1];
+        std::memcpy(s, buffer.data(), buffer.size());
+        s[buffer.size()] = '\0';
+        return s;
+    }
+};
+
 #endif // __INPUT_OUTPUT__

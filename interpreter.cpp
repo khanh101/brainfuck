@@ -34,7 +34,9 @@ int main(int argc, char** argv) {
         return 1;
     }
     auto [data_length, code] = read_args(argc, argv);
-    interpreter i(data_length, code);
+    char_input_stdin input;
+    char_output_stdout output;
+    interpreter i(data_length, code, &input, &output);
 
     i.print_code();
 
