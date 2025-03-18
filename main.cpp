@@ -13,13 +13,18 @@ struct interpreter {
     uint64 data_ptr;
     uint64 code_ptr;
     vec<char> data;
-    interpreter(uint64 count): data_ptr(0), code_ptr(0), data(count, 0) {}
+    uint64 data_length;
+    interpreter(uint64 data_length): data_ptr(0), code_ptr(0), data(data_length, 0) {}
 
     const char* code;
+    uint64 code_length;
     dict<uint64, uint64> jump_table;
-    void load_code(const char* code, bool debug = true) {
+    void load_code(const char* code) {
+        code = code;
+        code_length = std::strlen(code);
+        jump_table = dict<uint64, uint64>();
         vec<uint64> bracket_index_stack;
-        for (uint64 i=0; i<std::strlen(code); i++) {
+        for (uint64 i=0; i<code_length; i++) {
             switch (code[i]) {
                 case '[':
                     bracket_index_stack.push_back(i);
@@ -32,17 +37,28 @@ struct interpreter {
                     break;
             }
         }
-        if (debug) {
-            std::printf("jump table:\n");
-            for (auto& [k, v] : jump_table) {
-                if (k < v) {
-                    std::printf("\t%llu <-> %llu\n", k, v);
-                }
+    }
+
+    void print_jump_table() {
+        std::printf("jump table:\n");
+        for (auto& [k, v] : jump_table) {
+            if (k < v) {
+                std::printf("\t%llu <-> %llu\n", k, v);
             }
         }
     }
 
-    void step() {
+    void print_data() {
+        for (uint64 i=0; i<data_length; i++) {
+            std::printf("%c", data[i]);
+        }
+        std::printf("\n");
+    }
+
+    bool step() {
+        if (code_ptr >= code_length) {
+            return false; // halt
+        }
         switch (code[code_ptr]) {
             case '>':
                 data_ptr++;
@@ -73,13 +89,17 @@ struct interpreter {
                 }
                 break;
         }
-        code_ptr++;        
+        code_ptr++;
+        return true;        
     }
 };
 
 
 int main() {
-    interpreter i(30000);
-    i.load_code("[caca][cac[ccc]]");
+    interpreter i(50);
+    i.load_code("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."); // hello world
+    while (i.step()) {
+        i.print_data();
+    }
     return 0;
 }
