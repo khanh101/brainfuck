@@ -145,6 +145,20 @@ struct interpreter {
     }
 };
 
+char* read_file(const char* filename) {
+    FILE* code_file = std::fopen(filename, "r");
+    if (code_file == nullptr) {
+        std::printf("Error: cannot open file %s\n", filename);
+        return nullptr;
+    }
+    std::fseek(code_file, 0, SEEK_END);
+    uint64 code_length = std::ftell(code_file);
+    std::rewind(code_file);
+    char* code = new char[code_length];
+    std::fread(code, 1, code_length, code_file);
+    std::fclose(code_file);
+    return code;
+}
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -153,17 +167,7 @@ int main(int argc, char** argv) {
     }
 
     uint64 data_length = std::stoull(argv[1]);
-    FILE* code_file = std::fopen(argv[2], "r");
-    if (code_file == nullptr) {
-        std::printf("Error: cannot open file %s\n", argv[2]);
-        return 1;
-    }
-    std::fseek(code_file, 0, SEEK_END);
-    uint64 code_length = std::ftell(code_file);
-    std::rewind(code_file);
-    char* code = new char[code_length];
-    std::fread(code, 1, code_length, code_file);
-    std::fclose(code_file);
+    char* code = read_file(argv[2]);
 
     interpreter i(data_length, code);
     while (i.step()) {
