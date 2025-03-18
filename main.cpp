@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <cstdint>
 
 using uint64 = std::uint64_t;
@@ -8,6 +9,8 @@ template<typename T>
 using vec = std::vector<T>;
 template<typename KT, typename VT>
 using dict = std::unordered_map<KT, VT>;
+template<typename T>
+using set = std::unordered_set<T>;
 
 // abstract class for input and output
 struct char_input {
@@ -54,21 +57,29 @@ struct interpreter {
     uint64 data_ptr;
     uint64 code_ptr;
     vec<char> data;
-    const vec<char>& code;
 
     char_input* input;
     char_output* output;
 
+    vec<char> code;
     dict<uint64, uint64> jump_table;
-    interpreter(uint64 data_length, const vec<char>& code, char_input* input = new char_input_stdin(), char_output* output = new char_output_stdout()):
+    interpreter(uint64 data_length, const vec<char>& source_code, char_input* input = new char_input_stdin(), char_output* output = new char_output_stdout()):
         data_ptr(0),
         code_ptr(0),
         data(data_length, 0),
-        code(code),
+        code(),
         input(input),
         output(output),
         jump_table()
     {
+        // shorten code
+        set<char> allowed_char_set = {'[', ']', '<', '>', '+', '-', '.', ','};
+        for (uint64 i = 0; i < source_code.size(); i++) {
+            if (allowed_char_set.find(source_code[i]) != allowed_char_set.end()) {
+                code.push_back(source_code[i]);
+            }
+        }
+        // calculate jump table
         vec<uint64> bracket_index_stack;
         for (uint64 i=0; i<code.size(); i++) {
             switch (code[i]) {
