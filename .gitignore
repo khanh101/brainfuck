@@ -176,4 +176,4 @@ cython_debug/
 
 # user defined
 *.out
-bin/*
+bin
