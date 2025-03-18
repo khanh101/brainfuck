@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Define the output directory
+output_dir="bin"
+
+# Create the output directory if it doesn't exist
+mkdir -p "$output_dir"
+
+# Iterate over each subdirectory in cmd/
+for dir in cmd/*/; do
+    # Check if main.go exists in the subdirectory
+    if [ -f "$dir/main.go" ]; then
+        # Extract the directory name to name the output binary
+        binary_name=$(basename "$dir")
+        # Build the main.go file and place the binary in the output directory
+        go build -o "$output_dir/$binary_name" "$dir/main.go"
+        echo "Built $output_dir/$binary_name"
+    fi
+done

@@ -1,4 +1,4 @@
-# BRAINFUCK INTERPRETER
+# BRAINFUCK
 
 ## EXTENSION
 
@@ -12,14 +12,8 @@
 
 - new commands: `_` noop
 
-## PROGRAM
+## PROGRAM 
 
 - `hello.bf`: just hello word
 
 - `add.bf`: single digit adding `23 -> (2 + 3) -> 5`, the time complexity is of `O(2^n)`
-
-# UNIVERSAL SEARCH
-
-use `brainfuck` to search for algorithms
-
-- `bin/universal_search` example for factorizing `4 = 2x2`
