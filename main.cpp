@@ -9,21 +9,48 @@ using vec = std::vector<T>;
 template<typename KT, typename VT>
 using dict = std::unordered_map<KT, VT>;
 
+struct char_input {
+    virtual char get() = 0;
+};
+
+struct char_output {
+    virtual void put(char c) = 0;
+};
+
+struct char_input_stdin : char_input {
+    char get() override {
+        return std::getchar();
+    }
+};
+
+struct char_output_stdout : char_output {
+    void put(char c) override {
+        std::putchar(c);
+    }
+};
+
 struct interpreter {
     uint64 data_ptr;
     uint64 code_ptr;
     vec<char> data;
     uint64 data_length;
+    
     const char* code;
     uint64 code_length;
+
+    char_input* input;
+    char_output* output;
+
     dict<uint64, uint64> jump_table;
-    interpreter(uint64 data_length, const char* code):
+    interpreter(uint64 data_length, const char* code, char_input* input = new char_input_stdin(), char_output* output = new char_output_stdout()):
         data_ptr(0),
         code_ptr(0),
         data(data_length, 0),
         data_length(data_length),
         code(code),
         code_length(std::strlen(code)),
+        input(input),
+        output(output),
         jump_table()
     {
         vec<uint64> bracket_index_stack;
@@ -76,10 +103,10 @@ struct interpreter {
                 data[data_ptr]--;
                 break;
             case '.':
-                std::putchar(data[data_ptr]);
+                output->put(data[data_ptr]);
                 break;
             case ',':
-                data[data_ptr] = std::getchar();
+                data[data_ptr] = input->get();
                 break;
             case '[':
                 if (data[data_ptr] == 0) {
