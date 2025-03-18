@@ -34,10 +34,6 @@ vec<token> parse_code(const vec<char>& source_code) {
         }
         // else ignore comments.
     }
-    for (uint64 i=0; i<token_list.size(); i++) {
-        std::printf("(%c: %d)", token_list[i].operation, token_list[i].count);
-    }
-    std::printf("\n");
     return token_list;
 }
 
@@ -81,6 +77,13 @@ struct interpreter {
     {
         this->code = parse_code(source_code);
         this->jump_table = calc_jump_table(this->code);
+    }
+
+    void print_code() {
+        for (uint64 i=0; i<code.size(); i++) {
+            std::printf("(%c: %d)", code[i].operation, code[i].count);
+        }
+        std::printf("\n");
     }
 
     void print_jump_table() {
