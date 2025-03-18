@@ -14,15 +14,18 @@ struct interpreter {
     uint64 code_ptr;
     vec<char> data;
     uint64 data_length;
-    interpreter(uint64 data_length): data_ptr(0), code_ptr(0), data(data_length, 0), data_length(data_length) {}
-
     const char* code;
     uint64 code_length;
     dict<uint64, uint64> jump_table;
-    void load_code(const char* code) {
-        this->code = code;
-        this->code_length = std::strlen(code);
-        this->jump_table = dict<uint64, uint64>();
+    interpreter(uint64 data_length, const char* code):
+        data_ptr(0),
+        code_ptr(0),
+        data(data_length, 0),
+        data_length(data_length),
+        code(code),
+        code_length(std::strlen(code)),
+        jump_table()
+    {
         vec<uint64> bracket_index_stack;
         for (uint64 i=0; i<code_length; i++) {
             switch (code[i]) {
@@ -96,8 +99,10 @@ struct interpreter {
 
 
 int main() {
-    interpreter i(50);
-    i.load_code("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."); // hello world
+    interpreter i(
+        50,
+        "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
+    ); // hello world
     while (i.step()) {
         // i.print_data();
     }
