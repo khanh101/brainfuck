@@ -4,9 +4,9 @@ import (
 	"brainfuck_go/pkg/brainfuck"
 	"brainfuck_go/pkg/input_output"
 	"fmt"
+	"github.com/gosuri/uilive"
 	"math/big"
 	"sync"
-	"sync/atomic"
 )
 
 func getHex(z *big.Int) string {
@@ -22,10 +22,17 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 		z *big.Int
 		i brainfuck.Interpreter
 	}
+	type output struct {
+		k string
+		v []uint8
+	}
 
-	var counter atomic.Uint64
 	space := sync.Map{}
-	prevCodeSize := 0
+	counter := 0
+	writer := uilive.New()
+	writer.Start()
+	defer writer.Stop()
+
 	for {
 		// new task
 		code := brainfuck.GetCodeFromInt(z)
@@ -37,15 +44,15 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 			}
 			k := getHex(t.z)
 			space.Store(k, t)
+			counter++ // add one more task
 		}
-		counter.Add(1) // add 1
-		if len(code) > prevCodeSize {
-			fmt.Printf("number of running tasks: %d code size %d\n", counter.Load(), len(code))
-			prevCodeSize = len(code)
-		}
+		_, _ = fmt.Fprintf(writer, "number of running tasks: %d code size %d\n", counter, len(code))
 		// run all tasks
 		wg := &sync.WaitGroup{}
-		haltChan := make(chan []uint8)
+
+		outputList := make([]*output, 0)
+		outputListMtx := &sync.Mutex{}
+
 		space.Range(func(k1, t1 interface{}) bool {
 			k := k1.(string)
 			t := t1.(*task)
@@ -64,16 +71,19 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 				for numSteps.Cmp(zero) > 0 {
 					halt, err := t.i.Step()
 					if halt || err != nil { // halt
-						// remove k from space
-						counter.Add(^uint64(0)) // add -1
-						space.Delete(k)
-						// get output
+						o := &output{
+							k: k,
+							v: nil,
+						}
 						if err == nil {
-							output := t.i.Output().(input_output.StringOutput).String()
-							if test(output) {
-								haltChan <- output
+							v := t.i.Output().(input_output.StringOutput).String()
+							if test(v) {
+								o.v = v
 							}
 						}
+						outputListMtx.Lock()
+						outputList = append(outputList, o)
+						outputListMtx.Unlock()
 						break
 					}
 					numSteps = numSteps.Sub(numSteps, one)
@@ -83,11 +93,14 @@ func UniversalSearch(dataLength int, input []uint8, test func([]uint8) bool) []u
 		})
 		wg.Wait()
 
-		select {
-		case output := <-haltChan:
-			return output
-		default:
+		for _, o := range outputList {
+			space.Delete(o.k) // remove task
+			if o.v != nil {
+				return o.v
+			}
 		}
+		counter -= len(outputList) // reduce counter
+
 		// next code
 		z = z.Add(z, one)
 	}
