@@ -22,4 +22,4 @@
 
 use `brainfuck` to search for algorithms
 
-- `./bin/universal_search_factorize 323` example for factorizing `323 = 17 x 19`
+- `./bin/universal_search_factorize 323` example for factorizing `221 = 13 x 17`
